@@ -49,7 +49,16 @@ export function Stopwatch({ fullscreen = false, onFullscreen }: StopwatchProps) 
         <span className={`tabular font-bold leading-none text-clock ${mainClass}`}>
           {main}
         </span>
-        <span className={`tabular font-semibold text-muted ${msClass}`}>.{ms}</span>
+        {/*
+          Milliseconds tick ~60×/sec. A monospace font keeps every glyph the
+          same width, and the fixed-width left-aligned slot guarantees the
+          line's total width never changes — so the time can't shift/"shake".
+        */}
+        <span
+          className={`tabular inline-block w-[4ch] text-left font-mono font-semibold text-muted ${msClass}`}
+        >
+          .{ms}
+        </span>
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-3">
