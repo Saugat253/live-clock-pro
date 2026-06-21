@@ -52,19 +52,20 @@ export function Timer({ fullscreen = false, onFullscreen }: TimerProps) {
   const hasHours = displayMs >= 3_600_000
   const percentLeft = Math.round(timer.progress * 100)
 
-  // Size the countdown text to the ring and the value's length so that
-  // HH:MM:SS stays roomy instead of cramped.
+  // Size the countdown text relative to the ring (via the `--ring-size` CSS var
+  // the ProgressRing exposes) and the value's length, so HH:MM:SS always fits
+  // inside the circle — on tall and short (laptop) screens alike.
   const countdownClass = fullscreen
     ? hasHours
-      ? 'text-[clamp(2.5rem,11vw,9rem)]'
-      : 'text-[clamp(3.5rem,15vw,12rem)]'
+      ? 'text-[calc(var(--ring-size)*0.155)]'
+      : 'text-[calc(var(--ring-size)*0.24)]'
     : hasHours
       ? 'text-4xl sm:text-5xl md:text-6xl'
       : 'text-6xl sm:text-7xl'
   const timesUpClass = fullscreen
-    ? 'text-[clamp(2.5rem,9vw,8rem)]'
+    ? 'text-[calc(var(--ring-size)*0.12)]'
     : 'text-3xl sm:text-4xl'
-  const subTextClass = fullscreen ? 'text-base sm:text-xl' : 'text-sm'
+  const subTextClass = fullscreen ? 'text-[calc(var(--ring-size)*0.05)]' : 'text-sm'
 
   return (
     <section className="flex flex-col items-center gap-9">

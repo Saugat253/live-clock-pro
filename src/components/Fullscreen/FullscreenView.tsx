@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useSettings } from '../../context/SettingsContext'
 import { useClock } from '../../hooks/useClock'
 import type { TabId } from '../../types'
@@ -30,6 +31,16 @@ function FullscreenClockContent() {
  * even where the Fullscreen API is unavailable.
  */
 export function FullscreenView({ tab, onExit }: FullscreenViewProps) {
+  // Lock background page scroll while the overlay is open so no stray
+  // scrollbar shows behind it.
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [])
+
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-10 overflow-y-auto bg-base p-6">
       <button
