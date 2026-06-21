@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Header } from './components/Header/Header'
-import { FullscreenClock } from './components/Clock/FullscreenClock'
+import { FullscreenView } from './components/Fullscreen/FullscreenView'
 import { KeyboardShortcuts } from './components/KeyboardShortcuts/KeyboardShortcuts'
 import { TimerAlert } from './components/Timer/TimerAlert'
+import { CopyrightIcon } from './components/ui/icons'
 import { SettingsProvider } from './context/SettingsContext'
 import { StopwatchProvider } from './context/StopwatchContext'
 import { TimerProvider } from './context/TimerContext'
@@ -61,14 +62,17 @@ function AppShell() {
         className="mx-auto w-full max-w-5xl flex-1 px-4 py-10 focus-visible:outline-none sm:py-16"
       >
         {tab === 'clock' && <ClockPage onFullscreen={openFullscreen} />}
-        {tab === 'timer' && <TimerPage />}
-        {tab === 'stopwatch' && <StopwatchPage />}
+        {tab === 'timer' && <TimerPage onFullscreen={openFullscreen} />}
+        {tab === 'stopwatch' && <StopwatchPage onFullscreen={openFullscreen} />}
       </main>
 
       <footer className="border-t border-line px-4 py-5 text-center text-xs text-muted">
-        <p>
-          Live Clock Pro · Shortcuts:{' '}
-          <kbd className="font-mono">Space</kbd> timer ·{' '}
+        <p className="flex flex-wrap items-center justify-center gap-1.5 font-medium text-fg">
+          <CopyrightIcon width={14} height={14} aria-hidden="true" />
+          <span>{new Date().getFullYear()} Live Clock Pro · by Saugat253</span>
+        </p>
+        <p className="mt-1.5">
+          Shortcuts: <kbd className="font-mono">Space</kbd> timer ·{' '}
           <kbd className="font-mono">S</kbd> stopwatch ·{' '}
           <kbd className="font-mono">L</kbd> lap ·{' '}
           <kbd className="font-mono">F</kbd> full screen ·{' '}
@@ -76,7 +80,7 @@ function AppShell() {
         </p>
       </footer>
 
-      {fullscreen && <FullscreenClock onExit={closeFullscreen} />}
+      {fullscreen && <FullscreenView tab={tab} onExit={closeFullscreen} />}
       <TimerAlert />
       <KeyboardShortcuts
         fullscreen={fullscreen}

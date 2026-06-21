@@ -1,5 +1,9 @@
 import { Timer } from '../components/Timer/Timer'
 
-export function TimerPage() {
-  return <Timer />
+interface TimerPageProps {
+  onFullscreen: () => void
+}
+
+export function TimerPage({ onFullscreen }: TimerPageProps) {
+  return <Timer onFullscreen={onFullscreen} />
 }

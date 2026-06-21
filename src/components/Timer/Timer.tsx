@@ -10,6 +10,7 @@ import { formatCountdown } from '../../utils/time'
 import { Button } from '../ui/Button'
 import {
   BellIcon,
+  ExpandIcon,
   PauseIcon,
   PlayIcon,
   ResetIcon,
@@ -19,7 +20,14 @@ import { PresetButtons } from './PresetButtons'
 import { ProgressRing } from './ProgressRing'
 import { TimerInput } from './TimerInput'
 
-export function Timer() {
+interface TimerProps {
+  /** Render the large, distraction-free full-screen layout. */
+  fullscreen?: boolean
+  /** Enter full-screen mode (shown only in the normal layout). */
+  onFullscreen?: () => void
+}
+
+export function Timer({ fullscreen = false, onFullscreen }: TimerProps) {
   const timer = useTimerContext()
   const { status } = timer
   const isIdle = status === 'idle'
@@ -32,7 +40,6 @@ export function Timer() {
   )
 
   const startWith = (seconds: number) => {
-    // Unlock audio inside the user gesture so the completion tone can play.
     unlockAudio()
     timer.start(seconds)
   }
@@ -42,33 +49,43 @@ export function Timer() {
   }
 
   const displayMs = isIdle ? timer.durationMs : timer.remainingMs
+  const hasHours = displayMs >= 3_600_000
   const percentLeft = Math.round(timer.progress * 100)
 
+  // Size the countdown text to the ring and the value's length so that
+  // HH:MM:SS stays roomy instead of cramped.
+  const countdownClass = fullscreen
+    ? hasHours
+      ? 'text-[clamp(2.5rem,11vw,9rem)]'
+      : 'text-[clamp(3.5rem,15vw,12rem)]'
+    : hasHours
+      ? 'text-4xl sm:text-5xl md:text-6xl'
+      : 'text-6xl sm:text-7xl'
+  const timesUpClass = fullscreen
+    ? 'text-[clamp(2.5rem,9vw,8rem)]'
+    : 'text-3xl sm:text-4xl'
+  const subTextClass = fullscreen ? 'text-base sm:text-xl' : 'text-sm'
+
   return (
-    <section className="flex flex-col items-center gap-10">
-      <ProgressRing progress={isIdle ? 1 : timer.progress}>
-        <div className="flex flex-col items-center gap-1">
+    <section className="flex flex-col items-center gap-9">
+      <ProgressRing progress={isIdle ? 1 : timer.progress} size={fullscreen ? 'lg' : 'md'}>
+        <div className="flex flex-col items-center gap-1.5">
           {isFinished ? (
-            <span
-              role="alert"
-              className="text-3xl font-extrabold text-accent sm:text-4xl"
-            >
+            <span role="alert" className={`font-extrabold text-accent ${timesUpClass}`}>
               Time&apos;s Up!
             </span>
           ) : (
             <>
-              <span className="tabular text-5xl font-bold text-clock sm:text-6xl">
+              <span className={`tabular font-bold leading-none text-clock ${countdownClass}`}>
                 {formatCountdown(displayMs)}
               </span>
               {(isRunning || isPaused) && (
-                <span className="text-sm font-medium text-muted">
+                <span className={`font-medium text-muted ${subTextClass}`}>
                   {percentLeft}% left
                 </span>
               )}
               {isIdle && (
-                <span className="text-sm font-medium text-muted">
-                  ready
-                </span>
+                <span className={`font-medium text-muted ${subTextClass}`}>ready</span>
               )}
             </>
           )}
@@ -126,16 +143,29 @@ export function Timer() {
         )}
       </div>
 
-      <div className="flex flex-col items-center gap-4">
-        <p className="text-sm font-medium text-muted">Quick presets</p>
-        <PresetButtons onSelect={startWith} />
-      </div>
+      {/* Extras — hidden in the distraction-free full-screen layout. */}
+      {!fullscreen && (
+        <>
+          <div className="flex flex-col items-center gap-4">
+            <p className="text-sm font-medium text-muted">Quick presets</p>
+            <PresetButtons onSelect={startWith} />
+          </div>
 
-      {notificationsSupported() && permission === 'default' && (
-        <Button variant="ghost" size="sm" onClick={enableNotifications}>
-          <BellIcon />
-          Enable completion notifications
-        </Button>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            {onFullscreen && (
+              <Button onClick={onFullscreen}>
+                <ExpandIcon />
+                Full Screen
+              </Button>
+            )}
+            {notificationsSupported() && permission === 'default' && (
+              <Button variant="ghost" onClick={enableNotifications}>
+                <BellIcon />
+                Enable completion notifications
+              </Button>
+            )}
+          </div>
+        </>
       )}
     </section>
   )

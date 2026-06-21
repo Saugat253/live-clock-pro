@@ -121,3 +121,10 @@ export const BellIcon = (p: SVGProps<SVGSVGElement>) => (
     <path d="M13.73 21a2 2 0 0 1-3.46 0" />
   </Icon>
 )
+
+export const CopyrightIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M14.83 9.17a4 4 0 1 0 0 5.66" />
+  </Icon>
+)
