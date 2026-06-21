@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="description"
+      content="Live Clock Pro — a real-time digital clock, countdown timer, and stopwatch with light, dark, and high-contrast themes."
+    />
+    <meta name="theme-color" content="#0b0f17" />
+    <title>Live Clock Pro</title>
+    <!--
+      Apply the saved theme before React mounts to avoid a flash of the wrong
+      theme (FOUC). Mirrors the storage key used by SettingsContext.
+    -->
+    <script>
+      (function () {
+        try {
+          var raw = localStorage.getItem('lcp.settings.v1')
+          var theme = raw ? JSON.parse(raw).theme : null
+          document.documentElement.dataset.theme = theme || 'dark'
+        } catch (e) {
+          document.documentElement.dataset.theme = 'dark'
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,142 @@
+@import 'tailwindcss';
+
+/*
+  Theme system
+  ------------
+  Colors are defined as raw CSS custom properties per theme on the
+  <html data-theme="..."> element, then mapped into Tailwind tokens with
+  `@theme inline` so utilities like `bg-base`, `text-clock`, `border-line`
+  resolve to `var(--...)` at use-time and react instantly to theme changes.
+*/
+@theme inline {
+  --color-base: var(--c-base);
+  --color-surface: var(--c-surface);
+  --color-surface-2: var(--c-surface-2);
+  --color-line: var(--c-line);
+  --color-fg: var(--c-fg);
+  --color-muted: var(--c-muted);
+  --color-clock: var(--c-clock);
+  --color-accent: var(--c-accent);
+  --color-accent-2: var(--c-accent-2);
+  --color-on-accent: var(--c-on-accent);
+  --color-danger: var(--c-danger);
+  --color-success: var(--c-success);
+
+  --font-mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', ui-monospace,
+    'Cascadia Code', Consolas, 'Liberation Mono', monospace;
+}
+
+/* Light (default fallback) */
+:root,
+[data-theme='light'] {
+  --c-base: #eef2f7;
+  --c-surface: #ffffff;
+  --c-surface-2: #f1f5f9;
+  --c-line: #dbe2ea;
+  --c-fg: #0f172a;
+  --c-muted: #5b6573;
+  --c-clock: #0b1220;
+  --c-accent: #2563eb;
+  --c-accent-2: #1d4ed8;
+  --c-on-accent: #ffffff;
+  --c-danger: #dc2626;
+  --c-success: #16a34a;
+}
+
+/* Dark */
+[data-theme='dark'] {
+  --c-base: #05070b;
+  --c-surface: #0d121c;
+  --c-surface-2: #161d2b;
+  --c-line: #232c3b;
+  --c-fg: #f3f6fb;
+  --c-muted: #93a1b5;
+  --c-clock: #ffffff;
+  --c-accent: #3b82f6;
+  --c-accent-2: #60a5fa;
+  --c-on-accent: #04121f;
+  --c-danger: #f87171;
+  --c-success: #34d399;
+}
+
+/* High contrast (accessibility) */
+[data-theme='high-contrast'] {
+  --c-base: #000000;
+  --c-surface: #000000;
+  --c-surface-2: #0a0a0a;
+  --c-line: #ffeb00;
+  --c-fg: #ffffff;
+  --c-muted: #ffeb00;
+  --c-clock: #ffeb00;
+  --c-accent: #ffeb00;
+  --c-accent-2: #ffffff;
+  --c-on-accent: #000000;
+  --c-danger: #ff6b6b;
+  --c-success: #00ff7f;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--c-base);
+  color: var(--c-fg);
+  font-family:
+    system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tabular figures keep the clock/timer digits from shifting as they tick. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* Visible focus ring for keyboard users (WCAG 2.4.7). */
+:where(button, a, input, [tabindex]):focus-visible {
+  outline: 3px solid var(--c-accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Screen-reader-only utility. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Completion flash for the timer — flashes a few times, then settles. */
+@keyframes lcp-flash {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+.animate-flash {
+  animation: lcp-flash 0.6s ease-in-out 5 forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
