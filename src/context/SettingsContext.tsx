@@ -8,7 +8,12 @@ import {
 } from 'react'
 import type { ReactNode } from 'react'
 import type { ClockFormat, Settings, Theme } from '../types'
-import { THEMES } from '../types'
+import {
+  DEFAULT_TIMER_PRESETS,
+  MAX_PRESET_SECONDS,
+  MAX_TIMER_PRESETS,
+  THEMES,
+} from '../types'
 import { loadJSON, saveJSON } from '../utils/storage'
 
 const STORAGE_KEY = 'lcp.settings.v1'
@@ -19,6 +24,7 @@ const DEFAULT_SETTINGS: Settings = {
   showSeconds: true,
   showDate: true,
   lastTimerSeconds: 5 * 60,
+  timerPresets: DEFAULT_TIMER_PRESETS,
 }
 
 interface SettingsContextValue {
@@ -30,6 +36,10 @@ interface SettingsContextValue {
   toggleSeconds: () => void
   toggleDate: () => void
   setLastTimerSeconds: (seconds: number) => void
+  /** Add a quick preset (seconds); ignores duplicates and respects the cap. */
+  addTimerPreset: (seconds: number) => void
+  removeTimerPreset: (seconds: number) => void
+  resetTimerPresets: () => void
 }
 
 const SettingsContext = createContext<SettingsContextValue | null>(null)
@@ -101,6 +111,35 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     [],
   )
 
+  const addTimerPreset = useCallback((seconds: number) => {
+    const value = Math.round(seconds)
+    if (value <= 0 || value > MAX_PRESET_SECONDS) return
+    setSettings((s) => {
+      if (
+        s.timerPresets.includes(value) ||
+        s.timerPresets.length >= MAX_TIMER_PRESETS
+      ) {
+        return s
+      }
+      return {
+        ...s,
+        timerPresets: [...s.timerPresets, value].sort((a, b) => a - b),
+      }
+    })
+  }, [])
+
+  const removeTimerPreset = useCallback((seconds: number) => {
+    setSettings((s) => ({
+      ...s,
+      timerPresets: s.timerPresets.filter((p) => p !== seconds),
+    }))
+  }, [])
+
+  const resetTimerPresets = useCallback(
+    () => setSettings((s) => ({ ...s, timerPresets: DEFAULT_TIMER_PRESETS })),
+    [],
+  )
+
   const value = useMemo<SettingsContextValue>(
     () => ({
       settings,
@@ -111,6 +150,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       toggleSeconds,
       toggleDate,
       setLastTimerSeconds,
+      addTimerPreset,
+      removeTimerPreset,
+      resetTimerPresets,
     }),
     [
       settings,
@@ -121,6 +163,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       toggleSeconds,
       toggleDate,
       setLastTimerSeconds,
+      addTimerPreset,
+      removeTimerPreset,
+      resetTimerPresets,
     ],
   )
 

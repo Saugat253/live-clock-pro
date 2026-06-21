@@ -28,7 +28,20 @@ export interface Settings {
   showDate: boolean
   /** Last timer duration the user configured, in seconds. */
   lastTimerSeconds: number
+  /** User-customizable timer quick presets, in seconds (ascending). */
+  timerPresets: number[]
 }
+
+/** Default timer quick presets in seconds: 1m, 5m, 10m, 15m, 30m, 1h, 2h. */
+export const DEFAULT_TIMER_PRESETS: number[] = [
+  60, 300, 600, 900, 1800, 3600, 7200,
+]
+
+/** Maximum number of quick presets a user can keep. */
+export const MAX_TIMER_PRESETS = 12
+
+/** Largest allowed preset, in seconds (24 hours). */
+export const MAX_PRESET_SECONDS = 24 * 3600
 
 /** A single recorded stopwatch lap. */
 export interface Lap {

@@ -128,3 +128,15 @@ export const CopyrightIcon = (p: SVGProps<SVGSVGElement>) => (
     <path d="M14.83 9.17a4 4 0 1 0 0 5.66" />
   </Icon>
 )
+
+export const PlusIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}>
+    <path d="M12 5v14M5 12h14" />
+  </Icon>
+)
+
+export const CloseIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}>
+    <path d="M18 6 6 18M6 6l12 12" />
+  </Icon>
+)
