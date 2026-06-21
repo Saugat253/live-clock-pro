@@ -10,6 +10,7 @@ import type { ReactNode } from 'react'
 import type { ClockFormat, Settings, Theme } from '../types'
 import {
   DEFAULT_TIMER_PRESETS,
+  LEGACY_DEFAULT_TIMER_PRESETS,
   MAX_PRESET_SECONDS,
   MAX_TIMER_PRESETS,
   THEMES,
@@ -17,6 +18,21 @@ import {
 import { loadJSON, saveJSON } from '../utils/storage'
 
 const STORAGE_KEY = 'lcp.settings.v1'
+
+const sameNumbers = (a: number[], b: number[]) =>
+  a.length === b.length && a.every((v, i) => v === b[i])
+
+/**
+ * One-time migration: users who never customized their presets are still on the
+ * legacy 7-preset default — move them to the new 3-preset default. Anyone with a
+ * customized set keeps it.
+ */
+function migrate(settings: Settings): Settings {
+  if (sameNumbers(settings.timerPresets, LEGACY_DEFAULT_TIMER_PRESETS)) {
+    return { ...settings, timerPresets: DEFAULT_TIMER_PRESETS }
+  }
+  return settings
+}
 
 const DEFAULT_SETTINGS: Settings = {
   theme: 'dark',
@@ -46,7 +62,7 @@ const SettingsContext = createContext<SettingsContextValue | null>(null)
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<Settings>(() =>
-    loadJSON(STORAGE_KEY, DEFAULT_SETTINGS),
+    migrate(loadJSON(STORAGE_KEY, DEFAULT_SETTINGS)),
   )
 
   // Persist on every change.

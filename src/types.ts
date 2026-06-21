@@ -32,8 +32,15 @@ export interface Settings {
   timerPresets: number[]
 }
 
-/** Default timer quick presets in seconds: 1m, 5m, 10m, 15m, 30m, 1h, 2h. */
-export const DEFAULT_TIMER_PRESETS: number[] = [
+/** Default timer quick presets in seconds: 5m, 15m, 30m. */
+export const DEFAULT_TIMER_PRESETS: number[] = [300, 900, 1800]
+
+/**
+ * The previous default set (1m, 5m, 10m, 15m, 30m, 1h, 2h). Used only to detect
+ * users who never customized their presets so we can migrate them to the new,
+ * smaller default — customized sets are left untouched.
+ */
+export const LEGACY_DEFAULT_TIMER_PRESETS: number[] = [
   60, 300, 600, 900, 1800, 3600, 7200,
 ]
 

@@ -10,26 +10,30 @@ interface PresetButtonsProps {
   onSelect: (seconds: number) => void
 }
 
-type Unit = 'minutes' | 'hours'
+const clampInt = (raw: string, max: number): number => {
+  const n = Number.parseInt(raw, 10)
+  if (!Number.isFinite(n) || n < 0) return 0
+  return Math.min(n, max)
+}
 
 export function PresetButtons({ onSelect }: PresetButtonsProps) {
   const { settings, addTimerPreset, removeTimerPreset, resetTimerPresets } =
     useSettings()
   const presets = settings.timerPresets
 
-  const [value, setValue] = useState('')
-  const [unit, setUnit] = useState<Unit>('minutes')
+  const [hours, setHours] = useState('')
+  const [minutes, setMinutes] = useState('')
 
   const atCapacity = presets.length >= MAX_TIMER_PRESETS
-  const parsed = Number.parseInt(value, 10)
-  const validAmount = Number.isFinite(parsed) && parsed > 0
+  const totalSeconds = clampInt(hours, 24) * 3600 + clampInt(minutes, 59) * 60
+  const valid = totalSeconds > 0 && totalSeconds <= MAX_PRESET_SECONDS
 
   const handleAdd = (e: FormEvent) => {
     e.preventDefault()
-    if (!validAmount) return
-    const seconds = unit === 'hours' ? parsed * 3600 : parsed * 60
-    addTimerPreset(Math.min(seconds, MAX_PRESET_SECONDS))
-    setValue('')
+    if (!valid || atCapacity) return
+    addTimerPreset(totalSeconds)
+    setHours('')
+    setMinutes('')
   }
 
   return (
@@ -64,51 +68,52 @@ export function PresetButtons({ onSelect }: PresetButtonsProps) {
         )}
       </div>
 
-      {/* Add a custom preset in minutes or hours. */}
+      {/* Add a custom preset combining hours and minutes (e.g. 2h 30m). */}
       <form
         onSubmit={handleAdd}
-        className="flex flex-wrap items-center justify-center gap-2"
+        className="flex flex-wrap items-end justify-center gap-2"
         aria-label="Add a custom preset"
       >
-        <input
-          type="number"
-          inputMode="numeric"
-          min={1}
-          max={unit === 'hours' ? 24 : 1440}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="e.g. 45"
-          aria-label="Preset amount"
-          disabled={atCapacity}
-          className="tabular w-24 rounded-xl border border-line bg-surface-2 px-3 py-2 text-center text-sm text-fg focus-visible:outline-none disabled:opacity-40"
-        />
-        <div
-          role="group"
-          aria-label="Unit"
-          className="inline-flex rounded-xl border border-line bg-surface p-1"
-        >
-          {(['minutes', 'hours'] as Unit[]).map((u) => (
-            <button
-              key={u}
-              type="button"
-              onClick={() => setUnit(u)}
-              aria-pressed={unit === u}
-              disabled={atCapacity}
-              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-40 ${
-                unit === u
-                  ? 'bg-accent text-on-accent'
-                  : 'text-muted hover:text-fg'
-              }`}
-            >
-              {u === 'minutes' ? 'Min' : 'Hr'}
-            </button>
-          ))}
-        </div>
+        <label className="flex flex-col items-center gap-1">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted">
+            Hours
+          </span>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={0}
+            max={24}
+            value={hours}
+            onChange={(e) => setHours(e.target.value)}
+            placeholder="0"
+            disabled={atCapacity}
+            className="tabular w-20 rounded-xl border border-line bg-surface-2 px-3 py-2 text-center text-sm text-fg focus-visible:outline-none disabled:opacity-40"
+          />
+        </label>
+        <span aria-hidden="true" className="pb-2 text-lg font-bold text-muted">
+          :
+        </span>
+        <label className="flex flex-col items-center gap-1">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted">
+            Minutes
+          </span>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={0}
+            max={59}
+            value={minutes}
+            onChange={(e) => setMinutes(e.target.value)}
+            placeholder="0"
+            disabled={atCapacity}
+            className="tabular w-20 rounded-xl border border-line bg-surface-2 px-3 py-2 text-center text-sm text-fg focus-visible:outline-none disabled:opacity-40"
+          />
+        </label>
         <Button
           type="submit"
           variant="primary"
-          size="sm"
-          disabled={!validAmount || atCapacity}
+          size="md"
+          disabled={!valid || atCapacity}
         >
           <PlusIcon width={16} height={16} />
           Add
